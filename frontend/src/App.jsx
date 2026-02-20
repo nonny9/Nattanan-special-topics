@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./App.css";
 
-const API_URL = "http://localhost:5000/tasks";
+// ใช้ Environment Variable จาก Vercel / .env
+const API_URL = `${import.meta.env.VITE_API_URL}/tasks`;
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
 
+  // โหลดข้อมูลตอนเปิดหน้าเว็บ
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -17,7 +19,7 @@ function App() {
       const res = await axios.get(API_URL);
       setTasks(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching tasks:", err);
     }
   };
 
@@ -30,36 +32,35 @@ function App() {
       setTasks([res.data, ...tasks]);
       setInput("");
     } catch (err) {
-      console.log(err);
+      console.error("Error adding task:", err);
     }
   };
 
   const toggleTask = async (id) => {
     try {
       const res = await axios.put(`${API_URL}/${id}`);
-      setTasks(tasks.map(t => t._id === id ? res.data : t));
+      setTasks(tasks.map((t) => (t._id === id ? res.data : t)));
     } catch (err) {
-      console.log(err);
+      console.error("Error toggling task:", err);
     }
   };
 
   const deleteTask = async (id) => {
     try {
       await axios.delete(`${API_URL}/${id}`);
-      setTasks(tasks.filter(t => t._id !== id));
+      setTasks(tasks.filter((t) => t._id !== id));
     } catch (err) {
-      console.log(err);
+      console.error("Error deleting task:", err);
     }
   };
 
   return (
     <div className="layout-container">
       <div className="main-card">
-        
         <div className="card-header">
           <h1>Task Management System</h1>
           <div className="status-badge">
-            {tasks.filter(t => !t.completed).length} Tasks Pending
+            {tasks.filter((t) => !t.completed).length} Tasks Pending
           </div>
         </div>
 
@@ -80,17 +81,21 @@ function App() {
           <div className="list-container">
             {tasks.length > 0 ? (
               <ul className="task-list">
-                {tasks.map(task => (
+                {tasks.map((task) => (
                   <li key={task._id} className="task-item">
                     <div
-                      className={`checkbox ${task.completed ? 'checked' : ''}`}
+                      className={`checkbox ${
+                        task.completed ? "checked" : ""
+                      }`}
                       onClick={() => toggleTask(task._id)}
                     >
                       {task.completed && <span>✓</span>}
                     </div>
 
                     <span
-                      className={`text ${task.completed ? 'completed' : ''}`}
+                      className={`text ${
+                        task.completed ? "completed" : ""
+                      }`}
                       onClick={() => toggleTask(task._id)}
                     >
                       {task.text}
@@ -112,7 +117,6 @@ function App() {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
